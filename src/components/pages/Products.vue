@@ -1,5 +1,7 @@
 <template>
   <div>
+    <loading :active.sync="isLoading"></loading>
+
     <div class="text-right mt-4">
       <button class="btn btn-primary" @click="openModal(true)">
         建立新的產品
@@ -87,7 +89,10 @@
                 <div class="form-group">
                   <label for="customFile"
                     >或 上傳圖片
-                    <i class="fas fa-spinner fa-spin"></i>
+                    <i
+                      v-if="status.fileUploading"
+                      class="fas fa-spinner fa-spin"
+                    ></i>
                   </label>
                   <input
                     type="file"
@@ -233,14 +238,20 @@ export default {
       products: [],
       tempProduct: {},
       isNew: false,
+      isLoading: false,
+      status: {
+        fileUploading: false,
+      },
     };
   },
   methods: {
     getProducts() {
       const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/products`;
       const vm = this;
+      vm.isLoading = true;
       this.$http.get(api).then((response) => {
         vm.products = response.data.products;
+        vm.isLoading = false;
         console.log(vm.products);
       });
     },
@@ -276,6 +287,7 @@ export default {
     uploadFile() {
       const file = this.$refs.files.files[0];
       const vm = this;
+      vm.status.fileUploading = true;
       const formData = new FormData();
       formData.append("file-to-upload", file);
       const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/upload`;
@@ -289,6 +301,7 @@ export default {
           if (response.data.success) {
             // vm.tempProduct.imageUrl = response.data.imageUrl; //無法形成雙向綁定
             vm.$set(vm.tempProduct, "imageUrl", response.data.imageUrl); // 強制寫入
+            vm.status.fileUploading = false;
           }
         });
     },
