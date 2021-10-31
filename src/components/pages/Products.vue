@@ -270,11 +270,17 @@ export default {
         }
       });
     },
-    removeProduct(product) {
-      const index = this.products.findIndex(function (item) {
-        return product.id === item.id;
+    removeProduct(item) {
+      const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/product/${item.id}`;
+      const vm = this;
+      this.$http.delete(api).then((response) => {
+        if (response.data.success) {
+          vm.products = response.data.products;
+          vm.getProducts();
+        } else {
+          console.log("找不到產品");
+        }
       });
-      this.products.splice(index, 1);
     },
   },
   created() {
