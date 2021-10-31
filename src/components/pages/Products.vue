@@ -78,7 +78,7 @@
                   <label for="image">輸入圖片網址</label>
                   <input
                     type="text"
-                    v-model="tempProduct.imgUrl"
+                    v-model="tempProduct.imageUrl"
                     class="form-control"
                     id="image"
                     placeholder="請輸入圖片連結"
@@ -91,15 +91,18 @@
                   </label>
                   <input
                     type="file"
+                    @change="uploadFile"
+                    name="file-to-upload"
                     id="customFile"
                     class="form-control"
                     ref="files"
                   />
                 </div>
                 <img
-                  img="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=828346ed697837ce808cae68d3ddc3cf&auto=format&fit=crop&w=1350&q=80"
+                  v-if="tempProduct.imageUrl"
+                  :src="tempProduct.imageUrl"
                   class="img-fluid"
-                  alt=""
+                  :alt="tempProduct.title"
                 />
               </div>
               <div class="col-sm-8">
@@ -269,6 +272,25 @@ export default {
           console.log("新增失敗");
         }
       });
+    },
+    uploadFile() {
+      const file = this.$refs.files.files[0];
+      const vm = this;
+      const formData = new FormData();
+      formData.append("file-to-upload", file);
+      const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/upload`;
+      this.$http
+        .post(api, formData, {
+          headers: {
+            "Content-Type": "mutipart/form-data",
+          },
+        })
+        .then((response) => {
+          if (response.data.success) {
+            // vm.tempProduct.imageUrl = response.data.imageUrl; //無法形成雙向綁定
+            vm.$set(vm.tempProduct, "imageUrl", response.data.imageUrl); // 強制寫入
+          }
+        });
     },
     removeProduct(item) {
       const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/product/${item.id}`;
