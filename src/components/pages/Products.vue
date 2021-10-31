@@ -13,7 +13,7 @@
           <th width="120">原價</th>
           <th width="120">售價</th>
           <th width="100">是否啟用</th>
-          <th width="80">編輯</th>
+          <th width="120">編輯</th>
         </tr>
       </thead>
       <tbody>
@@ -36,6 +36,12 @@
               @click="openModal(false, item)"
             >
               編輯
+            </button>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              @click="removeProduct(item)"
+            >
+              刪除
             </button>
           </td>
         </tr>
@@ -263,6 +269,12 @@ export default {
           console.log("新增失敗");
         }
       });
+    },
+    removeProduct(product) {
+      const index = this.products.findIndex(function (item) {
+        return product.id === item.id;
+      });
+      this.products.splice(index, 1);
     },
   },
   created() {
